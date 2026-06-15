@@ -1,15 +1,12 @@
 [submodule "opensbi"]
 	path = opensbi
-	url = git@github.com:riscv-software-src/opensbi.git
+	url = https://github.com/riscv-software-src/opensbi.git
 [submodule "xvisor"]
 	path = xvisor
-	url = git@github.com:xvisor/xvisor.git
+	url = https://github.com/xvisor/xvisor.git
 [submodule "linux"]
 	path = linux
 	url = git@github.com:torvalds/linux.git
 [submodule "busybox"]
 	path = busybox
 	url = git://busybox.net/busybox.git
-[submodule "sim/sail"]
-	path = sim/sail
-	url = git@github.com:defermelowie/riscv-hext-sail.git
