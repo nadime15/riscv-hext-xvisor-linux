@@ -15,7 +15,7 @@
 	vcpu_template {
 		device_type = "vcpu";
 		compatible = "riscv,generic";
-		riscv,isa = "rv64imafdch";
+		riscv,isa = "rv64imafdchv";
 		start_pc = <0x00000000>;
 		poweroff;
 	};
@@ -63,6 +63,7 @@
 			guest_physical_addr = <0x10001000>;
 			physical_size = <0x1000>;
 			ram0_base = <0x80000000>;
+			boot_delay = <0>;
 		};
 
 		simplefb {
