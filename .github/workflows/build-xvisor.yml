@@ -1,0 +1,28 @@
+name: build-xvisor
+on: [push, pull_request, workflow_dispatch, merge_group]
+
+jobs:
+  build-xvisor:
+    runs-on: ubuntu-latest
+    container: ubuntu:25.10
+    steps:
+      - name: Pre-install git
+        run: |
+          apt-get update
+          apt-get install -y git
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          apt-get install -y build-essential gcc-riscv64-linux-gnu \
+              device-tree-compiler cpio bison flex bc fakeroot \
+              libssl-dev libelf-dev python3
+
+      - name: Build
+        run: |
+          make setup
+          make xvisor
