@@ -1,4 +1,4 @@
-CROSS_COMPILE=riscv64-unknown-linux-gnu-
+CROSS_COMPILE=riscv64-linux-gnu-
 
 CSIM=sim/sail/c_emulator/riscv_sim_RV64
 QEMU=qemu-system-riscv64
@@ -27,7 +27,7 @@ build: $(XVISOR_ELF) $(XVISOR_DTB)
 
 $(XVISOR_ELF): $(XVISOR_INITRD) $(XVISOR_BIN)
 	cd ./opensbi/ && git restore firmware && patch -p1 < ../opensbi_initrd.patch
-	$(MAKE) -C ./opensbi/ PLATFORM=generic CROSS_COMPILE=$(CROSS_COMPILE) FW_PAYLOAD_PATH=../$(XVISOR_BIN) -j$$(nproc)
+	$(MAKE) -C ./opensbi/ PLATFORM=generic CROSS_COMPILE=$(CROSS_COMPILE) FW_TEXT_START=0x80000000 FW_PAYLOAD_PATH=../$(XVISOR_BIN) -j$$(nproc)
 	cp opensbi/build/platform/generic/firmware/fw_payload.elf $@
 
 $(XVISOR_INITRD): xvisor_guest.dts xvisor_linux.dts disks/xvisor_initrd/boot.xscript $(GUEST_IMAGE) $(GUEST_ROOTFS)
@@ -59,6 +59,9 @@ $(XVISOR_BIN): $(XVISOR_CONFIG)
 	cp xvisor/build/vmm.bin $@
 
 $(TARGETDIR)/%.dtb: %.dts
+	dtc $< > $@
+
+$(XVISOR_DTB): $(TARGETDIR)/rv64gch_xvisor.dts
 	dtc $< > $@
 
 #-------------------------------------------------------------------------------
@@ -99,10 +102,9 @@ qemu: $(XVISOR_BIN) $(XVISOR_INITRD) $(XVISOR_ELF)
 # Support
 #-------------------------------------------------------------------------------
 
-# Auto update initrd field in device tree
-rv64gch_xvisor.dts: $(XVISOR_ELF)
+# Auto update initrd field in device tree (writes a generated copy; template stays clean)
+$(TARGETDIR)/rv64gch_xvisor.dts: rv64gch_xvisor.dts $(XVISOR_ELF)
 	$(CROSS_COMPILE)objdump -x $(XVISOR_ELF) | grep -F "_initrd_" | sed -n -E "s/^0+([0-f]+) l +\.initrd\t0+/0x\1/p" > $(TARGETDIR)/initrd_labels.txt
-	INITRD_START=$$(cat $(TARGETDIR)/initrd_labels.txt | sed -n -E "s/^(0x[0-f]+) _initrd_start/\1/p"); \
-	sed -i -e "s/0x90000000/$$INITRD_START/g" $@
-	INITRD_END=$$(cat $(TARGETDIR)/initrd_labels.txt | sed -n -E "s/^(0x[0-f]+) _initrd_end/\1/p"); \
-	sed -i -e "s/0x91045a00/$$INITRD_END/g" $@
+	INITRD_START=$$(sed -n -E "s/^(0x[0-f]+) _initrd_start/\1/p" $(TARGETDIR)/initrd_labels.txt); \
+	INITRD_END=$$(sed -n -E "s/^(0x[0-f]+) _initrd_end/\1/p" $(TARGETDIR)/initrd_labels.txt); \
+	sed -e "s/@INITRD_START@/$$INITRD_START/g" -e "s/@INITRD_END@/$$INITRD_END/g" $< > $@

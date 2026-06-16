@@ -23,14 +23,15 @@ diff --git a/firmware/fw_payload.elf.ldS b/firmware/fw_payload.elf.ldS
 index f1a544b..6063465 100644
 --- a/firmware/fw_payload.elf.ldS
 +++ b/firmware/fw_payload.elf.ldS
-@@ -28,5 +28,14 @@ SECTIONS
+@@ -28,5 +28,15 @@ SECTIONS
 		 PROVIDE(_payload_end = .);
 	 }
 
 +	.initrd.info : {
-+		*(.initrd.*)
++		KEEP(*(.initrd.*))
 +	}
 +	.initrd : {
++		KEEP(*(.initrd))
 +		PROVIDE(_initrd_start = .);
 +		*(.initrd)
 +		PROVIDE(_initrd_end = .);

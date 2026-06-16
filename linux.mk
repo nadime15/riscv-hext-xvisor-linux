@@ -1,4 +1,4 @@
-CROSS_COMPILE=riscv64-unknown-linux-gnu-
+CROSS_COMPILE=riscv64-linux-gnu-
 
 CSIM=sim/sail/c_emulator/riscv_sim_RV64
 QEMU=qemu-system-riscv64
@@ -28,9 +28,8 @@ $(LINUX_ELF): $(LINUX_IMAGE)
 	cp opensbi/build/platform/generic/firmware/fw_payload.elf $@
 
 $(LINUX_IMAGE): $(LINUX_CONFIG) $(LINUX_INITRAMFS)
-	INITRAMFS=$$(realpath $(LINUX_INITRAMFS) | sed -e "s:\/:\\\/:g"); echo $$INITRAMFS;\
-	sed -i -e "s/<LINUX_INITRAMFS>/$$INITRAMFS/g" $(LINUX_CONFIG)
-	cp $(LINUX_CONFIG) ./linux/arch/riscv/configs/$(LINUX_CONFIG)
+	INITRAMFS=$$(realpath $(LINUX_INITRAMFS) | sed -e "s:\/:\\\/:g"); \
+	sed -e "s/<LINUX_INITRAMFS>/$$INITRAMFS/g" $(LINUX_CONFIG) > ./linux/arch/riscv/configs/$(LINUX_CONFIG)
 	$(MAKE) -C linux O=build ARCH=riscv $(LINUX_CONFIG)
 	$(MAKE) -C linux O=build ARCH=riscv CROSS_COMPILE=$(CROSS_COMPILE) Image -j$$(nproc)
 	cp linux/build/arch/riscv/boot/Image $(LINUX_IMAGE)

@@ -6,26 +6,25 @@
   compatible = "ucbbar,spike-bare-dev";
   model = "ucbbar,spike-bare";
   chosen {
-    stdout-path = &HTIF;
     bootargs = "vmm.bootcmd=\"vfs mount initrd /;vfs run /boot.xscript\"";
-    linux,initrd-start = <0x90000000>;
-    linux,initrd-end   = <0x91045a00>;
+    linux,initrd-start = <@INITRD_START@>;
+    linux,initrd-end   = <@INITRD_END@>;
   };
   cpus {
     #address-cells = <1>;
     #size-cells = <0>;
-    timebase-frequency = <10000000>;
+    timebase-frequency = <500000000>;
     CPU0: cpu@0 {
       device_type = "cpu";
       reg = <0>;
       status = "okay";
       compatible = "riscv";
-      riscv,isa = "rv64imafdchv_zbb_zicntr_zicsr";
       riscv,isa-base = "rv64i";
-      riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "h", "v", "zbb", "zicntr", "zicsr";
-      mmu-type = "riscv,sv48";
-      riscv,pmpregions = <16>;
-      riscv,pmpgranularity = <4>;
+      riscv,isa = "rv64imafdcbvh_zicond_zicntr_zicsr_zifencei_zba_zbb_zcb_zcd";
+      riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "b", "v", "h", "zicond", "zicntr", "zicsr", "zifencei", "zba", "zbb", "zcb", "zcd";
+      mmu-type = "riscv,sv57";
+      riscv,pmpregions = <0x00>;
+      riscv,pmpgranularity = <0x04>;
       clock-frequency = <1000000000>;
       CPU0_intc: interrupt-controller {
         #address-cells = <2>;
@@ -37,7 +36,7 @@
   };
   memory@80000000 {
     device_type = "memory";
-    reg = <0x0 0x80000000 0x0 0x20000000>;
+    reg = <0x0 0x80000000 0x0 0x80000000>;
   };
   soc {
     #address-cells = <2>;
@@ -46,11 +45,11 @@
     ranges;
     clint@2000000 {
       compatible = "riscv,clint0";
-      interrupts-extended = <&CPU0_intc 3 &CPU0_intc 7 >;
+      interrupts-extended = <&CPU0_intc 3 &CPU0_intc 7>;
       reg = <0x0 0x2000000 0x0 0xc0000>;
     };
   };
-  HTIF: htif {
+  htif {
     compatible = "ucb,htif0";
   };
 };

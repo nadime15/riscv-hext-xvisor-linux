@@ -15,7 +15,7 @@
 	vcpu_template {
 		device_type = "vcpu";
 		compatible = "riscv,generic";
-		riscv,isa = "rv64imafdch_sstc";
+		riscv,isa = "rv64imafdch";
 		start_pc = <0x00000000>;
 		poweroff;
 	};
@@ -28,7 +28,7 @@
 			address_type = "memory";
 			guest_physical_addr = <0x00000000>;
 			physical_size = <0x03000000>;
-			device_type = "alloced_rom";
+			device_type = "alloced_ram";
 			align_order = <21>; /* Align alloced memory to 2MB */
 		};
 
