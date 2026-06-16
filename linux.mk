@@ -38,8 +38,14 @@ $(LINUX_INITRAMFS): $(BBOX_CONFIG) disks/linux_initramfs/init
 	cp $(BBOX_CONFIG) busybox/.config
 	$(MAKE) -C busybox ARCH=riscv CROSS_COMPILE=$(CROSS_COMPILE) -j$$(nproc)
 	$(MAKE) -C busybox ARCH=riscv CROSS_COMPILE=$(CROSS_COMPILE) install CONFIG_PREFIX=../disks/linux_initramfs/
-	fakeroot sh -c 'rm -f disks/linux_initramfs/dev/null disks/linux_initramfs/dev/console; mknod -m 666 disks/linux_initramfs/dev/null c 1 3; mknod -m 600 disks/linux_initramfs/dev/console c 5 1; cd disks/linux_initramfs && find . -print0 | cpio --null -ov --format=newc --owner root:root > ../../$(LINUX_INITRAMFS)' \
-	| cpio --null -ov --format=newc --owner root:root > ../../$(LINUX_INITRAMFS)'
+	fakeroot sh -c '\
+	rm -f disks/linux_initramfs/dev/null disks/linux_initramfs/dev/console; \
+	mknod -m 666 disks/linux_initramfs/dev/null c 1 3; \
+	mknod -m 600 disks/linux_initramfs/dev/console c 5 1; \
+	cd disks/linux_initramfs && \
+	find . -print0 | cpio --null -ov --format=newc --owner root:root \
+	> ../../target/linux_initramfs.cpio \
+	'
 
 $(TARGETDIR)/%.dtb: %.dts
 	dtc $< > $@
